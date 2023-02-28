@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { AnimalsService } from './animals.service';
 import { CreateAnimalDTO } from './dto/create-animal.dto';
 import { UpdateAnimalDTO } from './dto/update-animal.dto';
@@ -9,23 +17,31 @@ export class AnimalsController {
   constructor(private readonly animalsService: AnimalsService) {}
 
   @Get('all')
-  findAll() {
-    return this.animalsService.findAll();
+  async findAll() {
+    return await this.animalsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.animalsService.findOne(id);
+  async findOne(@Param('id') id: string) {
+    return await this.animalsService.findOne(id);
   }
 
   @Patch(':id')
-  updateOne(@Param('id') id: string, @Body() updateAnimalDTO: UpdateAnimalDTO) {
-    return this.animalsService.updateOne(id, updateAnimalDTO);
+  async updateOne(
+    @Param('id') id: string,
+    @Body() updateAnimalDTO: UpdateAnimalDTO,
+  ) {
+    return await this.animalsService.updateOne(id, updateAnimalDTO);
+  }
+
+  @Delete(':id')
+  async removeOne(@Param('id') id: string) {
+    return await this.animalsService.removeOne(id);
   }
 
   @Post('add')
-  createOne(@Body() createAnimalDTO: CreateAnimalDTO) {
-    return this.animalsService.createOne(createAnimalDTO);
+  async createOne(@Body() createAnimalDTO: CreateAnimalDTO) {
+    return await this.animalsService.createOne(createAnimalDTO);
   }
 
   @Post('add/animals')
