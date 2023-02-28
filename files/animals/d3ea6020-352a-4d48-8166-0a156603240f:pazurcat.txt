@@ -1,1 +1,0 @@
-{"name":"pazur","species":"cat","description":"a gray cat","id":"d3ea6020-352a-4d48-8166-0a156603240f"}

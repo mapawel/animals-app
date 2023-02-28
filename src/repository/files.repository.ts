@@ -34,6 +34,23 @@ export class FilesRepository {
     throw new NotFoundException(`Animal with id: ${id} not found`);
   }
 
+  public async createOne(animal: Animal): Promise<Animal> {
+    const {
+      id,
+      name,
+      species,
+    }: { id: string; name: string; species: AnimalSpecies } = animal;
+    if (await this.isExisting(name, species))
+      throw new ConflictException(
+        `Aninmal with name: ${name} and species: ${species} already exists`,
+      );
+    await writeFile(
+      this.filenameWhPath(id, name, species),
+      JSON.stringify(animal),
+    );
+    return animal;
+  }
+
   public async updateOne(
     id: string,
     updateAnimalDTO: UpdateAnimalDTO,
@@ -66,23 +83,6 @@ export class FilesRepository {
     return updatedAnimal;
   }
 
-  public async createOne(animal: Animal): Promise<Animal> {
-    const {
-      id,
-      name,
-      species,
-    }: { id: string; name: string; species: AnimalSpecies } = animal;
-    if (await this.isExisting(name, species))
-      throw new ConflictException(
-        `Aninmal with name: ${name} and species: ${species} already exists`,
-      );
-    await writeFile(
-      this.filenameWhPath(id, name, species),
-      JSON.stringify(animal),
-    );
-    return animal;
-  }
-
   public async removeOne(id: string): Promise<boolean> {
     const animalToRemove: Animal = await this.findOne(id);
     const {
@@ -93,7 +93,7 @@ export class FilesRepository {
     return true;
   }
 
-  private async isExisting(
+  public async isExisting(
     name: string,
     species: AnimalSpecies,
   ): Promise<boolean> {

@@ -10,6 +10,7 @@ import {
 import { AnimalsService } from './animals.service';
 import { CreateAnimalDTO } from './dto/create-animal.dto';
 import { UpdateAnimalDTO } from './dto/update-animal.dto';
+import { CreateManyAnimalsDTO } from './dto/create-many-animals.dto';
 import { AnimalSpecies } from './entity/Animal-species.enum';
 
 @Controller('animals')
@@ -45,15 +46,18 @@ export class AnimalsController {
   }
 
   @Post('add/animals')
-  createMany(@Body() createAnimalDTOs: CreateAnimalDTO[]) {
-    return this.animalsService.createMany(createAnimalDTOs);
+  async createMany(@Body() createAnimalDTOs: CreateAnimalDTO[]) {
+    return await this.animalsService.createMany(createAnimalDTOs);
   }
 
   @Post('add/:species')
-  createManyOfType(
+  async createManyOfType(
     @Param('species') species: AnimalSpecies,
-    @Body() createAnimalDTOs: CreateAnimalDTO[],
+    @Body() createAnimalDTOs: CreateManyAnimalsDTO[],
   ) {
-    return this.animalsService.creatingManyOfType(species, createAnimalDTOs);
+    return await this.animalsService.creatingManyOfType(
+      species,
+      createAnimalDTOs,
+    );
   }
 }
