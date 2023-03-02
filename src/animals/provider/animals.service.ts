@@ -1,12 +1,12 @@
 import { Injectable, ConflictException } from '@nestjs/common';
-import { UpdateAnimalDTO } from './dto/update-animal.dto';
-import { CreateAnimalDTO } from './dto/create-animal.dto';
-import { CreateManyAnimalsDTO } from './dto/create-many-animals.dto';
-import { AnimalResDTO } from './dto/animal-res.dto';
-import { AnimalSpecies } from './entity/Animal-species.enum';
-import { Animal } from './entity/Animal';
+import { UpdateAnimalDTO } from '../dto/update-animal.dto';
+import { CreateAnimalDTO } from '../dto/create-animal.dto';
+import { CreateManyAnimalsDTO } from '../dto/create-many-animals.dto';
+import { AnimalResDTO } from '../dto/animal-res.dto';
+import { AnimalType } from '../entity/Animal-type.enum';
+import { Animal } from '../entity/Animal';
 import { FilesRepository } from '../repository/files.repository';
-import { AnimalDTOMapper } from './dto-mappers/animal-dto.mapper';
+import { AnimalDTOMapper } from '../dto-mappers/animal-dto.mapper';
 
 @Injectable()
 export class AnimalsService {
@@ -28,11 +28,11 @@ export class AnimalsService {
   ): Promise<AnimalResDTO> {
     const {
       name,
-      species,
+      type,
       description,
-    }: { name: string; species: AnimalSpecies; description: string } =
+    }: { name: string; type: AnimalType; description: string } =
       createAnimalDTO;
-    const newAnimal: Animal = new Animal(name, species, description);
+    const newAnimal: Animal = new Animal(name, type, description);
     const animal: Animal = await this.filesRepository.createOne(newAnimal);
     return AnimalDTOMapper.mapToResDTO(animal);
   }
@@ -58,13 +58,10 @@ export class AnimalsService {
     await Promise.all(
       createAnimalDTOs.map(async (animalDTO: CreateAnimalDTO) => {
         if (
-          await this.filesRepository.isExisting(
-            animalDTO.name,
-            animalDTO.species,
-          )
+          await this.filesRepository.isExisting(animalDTO.name, animalDTO.type)
         ) {
           throw new ConflictException(
-            `Aninmal with name: ${animalDTO.name} and species: ${animalDTO.species} already exists`,
+            `Aninmal with name: ${animalDTO.name} and type: ${animalDTO.type} already exists`,
           );
         }
       }),
@@ -81,12 +78,12 @@ export class AnimalsService {
   }
 
   public async creatingManyOfType(
-    species: AnimalSpecies,
+    type: AnimalType,
     updateAnimalDTOs: CreateManyAnimalsDTO[],
   ): Promise<AnimalResDTO[]> {
     const oneTypeAnimalsDTOs: CreateAnimalDTO[] = updateAnimalDTOs.map(
       (animalDTO: CreateManyAnimalsDTO) => {
-        return { ...animalDTO, species };
+        return { ...animalDTO, type };
       },
     );
 

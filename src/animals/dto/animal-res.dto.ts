@@ -1,8 +1,8 @@
-import { AnimalSpecies } from '../entity/Animal-species.enum';
+import { AnimalType } from '../entity/Animal-type.enum';
 
 export class AnimalResDTO {
   public readonly id: string;
   public readonly name: string;
-  public readonly species: AnimalSpecies;
+  public readonly type: AnimalType;
   public readonly description: string;
 }

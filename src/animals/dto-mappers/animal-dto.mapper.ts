@@ -6,7 +6,7 @@ export class AnimalDTOMapper {
     return {
       id: animal.id,
       name: animal.name,
-      species: animal.species,
+      type: animal.type,
       description: animal.description,
     };
   }

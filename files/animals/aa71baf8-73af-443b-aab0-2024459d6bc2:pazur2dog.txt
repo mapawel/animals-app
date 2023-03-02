@@ -1,1 +1,1 @@
-{"name":"pazur2","species":"dog","description":"a gray cat","id":"aa71baf8-73af-443b-aab0-2024459d6bc2"}
+{"name":"pazur2","type":"dog","description":"a gray cat","id":"aa71baf8-73af-443b-aab0-2024459d6bc2"}

@@ -5,8 +5,8 @@ import {
 } from '@nestjs/common';
 import path from 'path';
 import { readFile, readdir, writeFile, unlink } from 'fs/promises';
-import { Animal } from '../animals/entity/Animal';
-import { AnimalSpecies } from 'src/animals/entity/Animal-species.enum';
+import { Animal } from '../entity/Animal';
+import { AnimalType } from 'src/animals/entity/Animal-type.enum';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
 
 @Injectable()
@@ -38,14 +38,14 @@ export class FilesRepository {
     const {
       id,
       name,
-      species,
-    }: { id: string; name: string; species: AnimalSpecies } = animal;
-    if (await this.isExisting(name, species))
+      type,
+    }: { id: string; name: string; type: AnimalType } = animal;
+    if (await this.isExisting(name, type))
       throw new ConflictException(
-        `Aninmal with name: ${name} and species: ${species} already exists`,
+        `Aninmal with name: ${name} and type: ${type} already exists`,
       );
     await writeFile(
-      this.filenameWhPath(id, name, species),
+      this.filenameWhPath(id, name, type),
       JSON.stringify(animal),
     );
     return animal;
@@ -58,21 +58,21 @@ export class FilesRepository {
     const animalToUpdate: Animal = await this.findOne(id);
     const {
       name: name,
-      species: species,
-    }: { name: string; species: AnimalSpecies } = animalToUpdate;
+      type: type,
+    }: { name: string; type: AnimalType } = animalToUpdate;
     const updatedAnimal: Animal = { ...animalToUpdate, ...updateAnimalDTO };
     const {
       id: uid,
       name: uname,
-      species: uspecies,
-    }: { id: string; name: string; species: AnimalSpecies } = updatedAnimal;
+      type: uspecies,
+    }: { id: string; name: string; type: AnimalType } = updatedAnimal;
 
     if (
-      (uname !== name || uspecies !== species) &&
+      (uname !== name || uspecies !== type) &&
       (await this.isExisting(uname, uspecies))
     )
       throw new ConflictException(
-        `Aninmal with name: ${uname} and species: ${uspecies} already exists`,
+        `Aninmal with name: ${uname} and type: ${uspecies} already exists`,
       );
 
     await this.removeOne(id);
@@ -87,19 +87,19 @@ export class FilesRepository {
     const animalToRemove: Animal = await this.findOne(id);
     const {
       name: name,
-      species: species,
-    }: { name: string; species: AnimalSpecies } = animalToRemove;
-    await unlink(this.filenameWhPath(id, name, species));
+      type: type,
+    }: { name: string; type: AnimalType } = animalToRemove;
+    await unlink(this.filenameWhPath(id, name, type));
     return true;
   }
 
   public async isExisting(
     name: string,
-    species: AnimalSpecies,
+    type: AnimalType,
   ): Promise<boolean> {
     for (const file of await this.readDBFolder()) {
-      const nameAndSpecies: string = file.split(':')[1].split('.')[0];
-      if (nameAndSpecies === `${name}${species}`) return true;
+      const nameAndType: string = file.split(':')[1].split('.')[0];
+      if (nameAndType === `${name}${type}`) return true;
     }
     return false;
   }
@@ -107,9 +107,9 @@ export class FilesRepository {
   private filenameWhPath(
     id: string,
     name: string,
-    species: AnimalSpecies,
+    type: AnimalType,
   ): string {
-    return `${path.join(this.pathToDBFiles(), `${id}:${name}${species}`)}.txt`;
+    return `${path.join(this.pathToDBFiles(), `${id}:${name}${type}`)}.txt`;
   }
 
   private pathToDBFiles(): string {
