@@ -35,11 +35,8 @@ export class FilesRepository {
   }
 
   public async createOne(animal: Animal): Promise<Animal> {
-    const {
-      id,
-      name,
-      type,
-    }: { id: string; name: string; type: AnimalType } = animal;
+    const { id, name, type }: { id: string; name: string; type: AnimalType } =
+      animal;
     if (await this.isExisting(name, type))
       throw new ConflictException(
         `Aninmal with name: ${name} and type: ${type} already exists`,
@@ -56,10 +53,8 @@ export class FilesRepository {
     updateAnimalDTO: UpdateAnimalDTO,
   ): Promise<Animal> {
     const animalToUpdate: Animal = await this.findOne(id);
-    const {
-      name: name,
-      type: type,
-    }: { name: string; type: AnimalType } = animalToUpdate;
+    const { name: name, type: type }: { name: string; type: AnimalType } =
+      animalToUpdate;
     const updatedAnimal: Animal = { ...animalToUpdate, ...updateAnimalDTO };
     const {
       id: uid,
@@ -85,18 +80,13 @@ export class FilesRepository {
 
   public async removeOne(id: string): Promise<boolean> {
     const animalToRemove: Animal = await this.findOne(id);
-    const {
-      name: name,
-      type: type,
-    }: { name: string; type: AnimalType } = animalToRemove;
+    const { name: name, type: type }: { name: string; type: AnimalType } =
+      animalToRemove;
     await unlink(this.filenameWhPath(id, name, type));
     return true;
   }
 
-  public async isExisting(
-    name: string,
-    type: AnimalType,
-  ): Promise<boolean> {
+  public async isExisting(name: string, type: AnimalType): Promise<boolean> {
     for (const file of await this.readDBFolder()) {
       const nameAndType: string = file.split(':')[1].split('.')[0];
       if (nameAndType === `${name}${type}`) return true;
@@ -104,11 +94,7 @@ export class FilesRepository {
     return false;
   }
 
-  private filenameWhPath(
-    id: string,
-    name: string,
-    type: AnimalType,
-  ): string {
+  private filenameWhPath(id: string, name: string, type: AnimalType): string {
     return `${path.join(this.pathToDBFiles(), `${id}:${name}${type}`)}.txt`;
   }
 

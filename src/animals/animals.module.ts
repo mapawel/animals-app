@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { FilesRepository } from 'src/animals/repository/files.repository';
+import { FilesRepository } from './repository/files.repository';
 import { AnimalsController } from './controller/animals.controller';
 import { AnimalsService } from './provider/animals.service';
 
