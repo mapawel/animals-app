@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AnimalType } from '../entity/Animal-type.enum';
-import { AnimalsService } from '../provider/animals.service';
-import { FilesRepository } from '../repository/files.repository';
+import { AnimalType } from '../../entity/Animal-type.enum';
+import { AnimalsService } from '../animals.service';
+import { FilesRepository } from '../../repositories/animals.repository';
 
 describe('AnimalsService tests suite:', () => {
   let animalService: AnimalsService;

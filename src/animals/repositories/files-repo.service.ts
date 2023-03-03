@@ -8,9 +8,10 @@ import { readFile, readdir, writeFile, unlink } from 'fs/promises';
 import { Animal } from '../entity/Animal';
 import { AnimalType } from 'src/animals/entity/Animal-type.enum';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
+import { IAnimalsRepoService } from './animals-repo-service.interface';
 
 @Injectable()
-export class FilesRepository {
+export class FilesRepo implements IAnimalsRepoService {
   public async findAll(): Promise<Animal[]> {
     const animals: Animal[] = [];
     for (const file of await this.readDBFolder()) {

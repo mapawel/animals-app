@@ -3,24 +3,31 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
-import { AnimalsService } from '../provider/animals.service';
+import { AnimalsService } from '../service/animals.service';
 import { CreateAnimalDTO } from '../dto/create-animal.dto';
 import { UpdateAnimalDTO } from '../dto/update-animal.dto';
 import { CreateManyAnimalsDTO } from '../dto/create-many-animals.dto';
 import { AnimalType } from '../entity/Animal-type.enum';
 import { ParseUUIDPipe, ParseEnumPipe } from '@nestjs/common';
+import { IsJSON } from 'class-validator';
 
 @Controller('animals')
 export class AnimalsController {
   constructor(private readonly animalsService: AnimalsService) {}
 
   @Post('test/:id')
-  test(@Param('id') id: number) {
-    console.log('id ----> ', typeof id);
+  @Header('Accept', 'application/json')
+  test(
+    @Param('id') id: number,
+    @Body()
+    body: any,
+  ) {
+    console.log('body ----> ', body);
     return id;
   }
 
@@ -38,7 +45,10 @@ export class AnimalsController {
   }
 
   @Post('add')
-  async createOne(@Body() createAnimalDTO: CreateAnimalDTO) {
+  async createOne(
+    @Body()
+    createAnimalDTO: CreateAnimalDTO,
+  ) {
     return await this.animalsService.createOne(createAnimalDTO);
   }
 

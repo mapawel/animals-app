@@ -5,22 +5,22 @@ import { CreateManyAnimalsDTO } from '../dto/create-many-animals.dto';
 import { AnimalResDTO } from '../dto/animal-res.dto';
 import { AnimalType } from '../entity/Animal-type.enum';
 import { Animal } from '../entity/Animal';
-import { FilesRepository } from '../repository/files.repository';
-import { AnimalDTOMapper } from '../dto-mappers/animal-dto.mapper';
+import { AnimalsRepository } from '../repositories/animals.repository';
+import { mapToResDTO } from '../dto/animal-dto.mappers';
 
 @Injectable()
 export class AnimalsService {
-  constructor(private readonly filesRepository: FilesRepository) {}
+  constructor(private readonly animalsRepository: AnimalsRepository) {}
   public async findAll(): Promise<AnimalResDTO[]> {
-    const animals: Animal[] = await this.filesRepository.findAll();
+    const animals: Animal[] = await this.animalsRepository.findAll();
     return animals.map((animal: Animal) => {
-      return AnimalDTOMapper.mapToResDTO(animal);
+      return mapToResDTO(animal);
     });
   }
 
   public async findOne(id: string): Promise<AnimalResDTO> {
-    const animal: Animal = await this.filesRepository.findOne(id);
-    return AnimalDTOMapper.mapToResDTO(animal);
+    const animal: Animal = await this.animalsRepository.findOne(id);
+    return mapToResDTO(animal);
   }
 
   public async createOne(
@@ -33,23 +33,23 @@ export class AnimalsService {
     }: { name: string; type: AnimalType; description: string } =
       createAnimalDTO;
     const newAnimal: Animal = new Animal(name, type, description);
-    const animal: Animal = await this.filesRepository.createOne(newAnimal);
-    return AnimalDTOMapper.mapToResDTO(animal);
+    const animal: Animal = await this.animalsRepository.createOne(newAnimal);
+    return mapToResDTO(animal);
   }
 
   public async updateOne(
     id: string,
     updateAnimalDTO: UpdateAnimalDTO,
   ): Promise<AnimalResDTO> {
-    const animal: Animal = await this.filesRepository.updateOne(
+    const animal: Animal = await this.animalsRepository.updateOne(
       id,
       updateAnimalDTO,
     );
-    return AnimalDTOMapper.mapToResDTO(animal);
+    return mapToResDTO(animal);
   }
 
   public async removeOne(id: string): Promise<boolean> {
-    return await this.filesRepository.removeOne(id);
+    return await this.animalsRepository.removeOne(id);
   }
 
   public async createMany(
@@ -58,7 +58,10 @@ export class AnimalsService {
     await Promise.all(
       createAnimalDTOs.map(async (animalDTO: CreateAnimalDTO) => {
         if (
-          await this.filesRepository.isExisting(animalDTO.name, animalDTO.type)
+          await this.animalsRepository.isExisting(
+            animalDTO.name,
+            animalDTO.type,
+          )
         ) {
           throw new ConflictException(
             `Aninmal with name: ${animalDTO.name} and type: ${animalDTO.type} already exists`,
@@ -73,7 +76,7 @@ export class AnimalsService {
       }),
     );
     return animals.map((animal: Animal) => {
-      return AnimalDTOMapper.mapToResDTO(animal);
+      return mapToResDTO(animal);
     });
   }
 
@@ -90,7 +93,7 @@ export class AnimalsService {
     const animals: Animal[] = await this.createMany(oneTypeAnimalsDTOs);
 
     return animals.map((animal: Animal) => {
-      return AnimalDTOMapper.mapToResDTO(animal);
+      return mapToResDTO(animal);
     });
   }
 }
