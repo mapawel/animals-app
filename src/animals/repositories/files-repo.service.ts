@@ -6,7 +6,6 @@ import {
 import path from 'path';
 import { readFile, readdir, writeFile, unlink } from 'fs/promises';
 import { Animal } from '../entity/Animal';
-import { AnimalType } from 'src/animals/entity/Animal-type.enum';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
 import { IAnimalsRepoService } from './animals-repo-service.interface';
 
@@ -36,14 +35,13 @@ export class FilesRepo implements IAnimalsRepoService {
   }
 
   public async createOne(animal: Animal): Promise<Animal> {
-    const { id, name, type }: { id: string; name: string; type: AnimalType } =
-      animal;
-    if (await this.isExisting(name, type))
+    const { insuranceId, id }: { insuranceId: string; id: string } = animal;
+    if (await this.isExisting(insuranceId))
       throw new ConflictException(
-        `Aninmal with name: ${name} and type: ${type} already exists`,
+        `Aninmal with insurance ID: ${insuranceId} already exists`,
       );
     await writeFile(
-      this.filenameWhPath(id, name, type),
+      this.filenameWhPath(id, insuranceId),
       JSON.stringify(animal),
     );
     return animal;
@@ -54,26 +52,17 @@ export class FilesRepo implements IAnimalsRepoService {
     updateAnimalDTO: UpdateAnimalDTO,
   ): Promise<Animal> {
     const animalToUpdate: Animal = await this.findOne(id);
-    const { name: name, type: type }: { name: string; type: AnimalType } =
-      animalToUpdate;
-    const updatedAnimal: Animal = { ...animalToUpdate, ...updateAnimalDTO };
-    const {
-      id: uid,
-      name: uname,
-      type: uspecies,
-    }: { id: string; name: string; type: AnimalType } = updatedAnimal;
+    const { insuranceId }: { insuranceId: string } = animalToUpdate;
 
-    if (
-      (uname !== name || uspecies !== type) &&
-      (await this.isExisting(uname, uspecies))
-    )
-      throw new ConflictException(
-        `Aninmal with name: ${uname} and type: ${uspecies} already exists`,
-      );
+    const updatedAnimal: Animal = {
+      ...animalToUpdate,
+      ...updateAnimalDTO,
+      insuranceId,
+      id,
+    };
 
-    await this.removeOne(id);
     await writeFile(
-      this.filenameWhPath(uid, uname, uspecies),
+      this.filenameWhPath(id, insuranceId),
       JSON.stringify(updatedAnimal),
     );
     return updatedAnimal;
@@ -81,22 +70,21 @@ export class FilesRepo implements IAnimalsRepoService {
 
   public async removeOne(id: string): Promise<boolean> {
     const animalToRemove: Animal = await this.findOne(id);
-    const { name: name, type: type }: { name: string; type: AnimalType } =
-      animalToRemove;
-    await unlink(this.filenameWhPath(id, name, type));
+    const { insuranceId }: { insuranceId: string } = animalToRemove;
+    await unlink(this.filenameWhPath(id, insuranceId));
     return true;
   }
 
-  public async isExisting(name: string, type: AnimalType): Promise<boolean> {
+  public async isExisting(insuranceId: string): Promise<boolean> {
     for (const file of await this.readDBFolder()) {
-      const nameAndType: string = file.split(':')[1].split('.')[0];
-      if (nameAndType === `${name}${type}`) return true;
+      const fileIID: string = file.split(':')[1].split('.')[0];
+      if (fileIID === insuranceId) return true;
     }
     return false;
   }
 
-  private filenameWhPath(id: string, name: string, type: AnimalType): string {
-    return `${path.join(this.pathToDBFiles(), `${id}:${name}${type}`)}.txt`;
+  private filenameWhPath(id: string, insuranceId: string): string {
+    return `${path.join(this.pathToDBFiles(), `${id}:${insuranceId}`)}.txt`;
   }
 
   private pathToDBFiles(): string {

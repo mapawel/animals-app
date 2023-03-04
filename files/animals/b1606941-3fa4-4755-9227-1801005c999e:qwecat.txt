@@ -1,1 +1,0 @@
-{"name":"qwe","type":"cat","description":"qwe","id":"b1606941-3fa4-4755-9227-1801005c999e"}

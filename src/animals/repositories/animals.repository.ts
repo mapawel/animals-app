@@ -1,6 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Animal } from '../entity/Animal';
-import { AnimalType } from 'src/animals/entity/Animal-type.enum';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
 import { IAnimalsRepoService } from './animals-repo-service.interface';
 
@@ -34,7 +33,7 @@ export class AnimalsRepository {
     return await this.repositoryService.removeOne(id);
   }
 
-  public async isExisting(name: string, type: AnimalType): Promise<boolean> {
-    return await this.repositoryService.isExisting(name, type);
+  public async isExisting(insuranceId: string): Promise<boolean> {
+    return await this.repositoryService.isExisting(insuranceId);
   }
 }

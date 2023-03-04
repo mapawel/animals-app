@@ -1,5 +1,4 @@
 import { Animal } from '../entity/Animal';
-import { AnimalType } from '../entity/Animal-type.enum';
 import { UpdateAnimalDTO } from '../dto/update-animal.dto';
 
 export interface IAnimalsRepoService {
@@ -8,5 +7,5 @@ export interface IAnimalsRepoService {
   createOne(animal: Animal): Promise<Animal>;
   updateOne(id: string, updateAnimalDTO: UpdateAnimalDTO): Promise<Animal>;
   removeOne(id: string): Promise<boolean>;
-  isExisting(name: string, type: AnimalType): Promise<boolean>;
+  isExisting(insuranceId: string): Promise<boolean>;
 }

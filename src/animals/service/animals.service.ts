@@ -27,12 +27,17 @@ export class AnimalsService {
     createAnimalDTO: CreateAnimalDTO,
   ): Promise<AnimalResDTO> {
     const {
+      insuranceId,
       name,
       type,
       description,
-    }: { name: string; type: AnimalType; description: string } =
-      createAnimalDTO;
-    const newAnimal: Animal = new Animal(name, type, description);
+    }: {
+      insuranceId: string;
+      name: string;
+      type: AnimalType;
+      description: string;
+    } = createAnimalDTO;
+    const newAnimal: Animal = new Animal(insuranceId, name, type, description);
     const animal: Animal = await this.animalsRepository.createOne(newAnimal);
     return mapToResDTO(animal);
   }
@@ -57,14 +62,9 @@ export class AnimalsService {
   ): Promise<AnimalResDTO[]> {
     await Promise.all(
       createAnimalDTOs.map(async (animalDTO: CreateAnimalDTO) => {
-        if (
-          await this.animalsRepository.isExisting(
-            animalDTO.name,
-            animalDTO.type,
-          )
-        ) {
+        if (await this.animalsRepository.isExisting(animalDTO.insuranceId)) {
           throw new ConflictException(
-            `Aninmal with name: ${animalDTO.name} and type: ${animalDTO.type} already exists`,
+            `Aninmal with insurance ID: ${animalDTO.insuranceId} already exists`,
           );
         }
       }),

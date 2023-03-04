@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   Param,
   Patch,
   Post,
@@ -14,22 +13,10 @@ import { UpdateAnimalDTO } from '../dto/update-animal.dto';
 import { CreateManyAnimalsDTO } from '../dto/create-many-animals.dto';
 import { AnimalType } from '../entity/Animal-type.enum';
 import { ParseUUIDPipe, ParseEnumPipe } from '@nestjs/common';
-import { IsJSON } from 'class-validator';
 
 @Controller('animals')
 export class AnimalsController {
   constructor(private readonly animalsService: AnimalsService) {}
-
-  @Post('test/:id')
-  @Header('Accept', 'application/json')
-  test(
-    @Param('id') id: number,
-    @Body()
-    body: any,
-  ) {
-    console.log('body ----> ', body);
-    return id;
-  }
 
   @Get('all')
   async findAll() {
