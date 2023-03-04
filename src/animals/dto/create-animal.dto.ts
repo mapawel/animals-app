@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsEnum, Length } from 'class-validator';
 export class CreateAnimalDTO {
   @IsNotEmpty()
   @IsString()
-  @Length(5)
+  @Length(5, 5)
   public readonly insuranceId: string;
 
   @IsNotEmpty()

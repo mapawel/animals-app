@@ -5,7 +5,12 @@ import { AppContentType } from './global-middlewares/app-content-type.middleware
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+    }),
+  );
   app.use(AppContentType);
   await app.listen(3000);
 }

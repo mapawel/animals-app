@@ -1,7 +1,7 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { UpdateAnimalDTO } from '../dto/update-animal.dto';
 import { CreateAnimalDTO } from '../dto/create-animal.dto';
-import { CreateManyAnimalsDTO } from '../dto/create-many-animals.dto';
+import { CreateOneTypeAnimalsDTO } from '../dto/create-one-type-animals.dto';
 import { AnimalResDTO } from '../dto/animal-res.dto';
 import { AnimalType } from '../entity/Animal-type.enum';
 import { Animal } from '../entity/Animal';
@@ -60,16 +60,7 @@ export class AnimalsService {
   public async createMany(
     createAnimalDTOs: CreateAnimalDTO[],
   ): Promise<AnimalResDTO[]> {
-    await Promise.all(
-      createAnimalDTOs.map(async (animalDTO: CreateAnimalDTO) => {
-        if (await this.animalsRepository.isExisting(animalDTO.insuranceId)) {
-          throw new ConflictException(
-            `Aninmal with insurance ID: ${animalDTO.insuranceId} already exists`,
-          );
-        }
-      }),
-    );
-
+    await this.checkUniqueAndExisting(createAnimalDTOs);
     const animals: Animal[] = await Promise.all(
       createAnimalDTOs.map(async (animalDTO: CreateAnimalDTO) => {
         return await this.createOne(animalDTO);
@@ -82,10 +73,10 @@ export class AnimalsService {
 
   public async creatingManyOfType(
     type: AnimalType,
-    updateAnimalDTOs: CreateManyAnimalsDTO[],
+    updateAnimalDTOs: CreateOneTypeAnimalsDTO[],
   ): Promise<AnimalResDTO[]> {
     const oneTypeAnimalsDTOs: CreateAnimalDTO[] = updateAnimalDTOs.map(
-      (animalDTO: CreateManyAnimalsDTO) => {
+      (animalDTO: CreateOneTypeAnimalsDTO) => {
         return { ...animalDTO, type };
       },
     );
@@ -95,5 +86,24 @@ export class AnimalsService {
     return animals.map((animal: Animal) => {
       return mapToResDTO(animal);
     });
+  }
+
+  private async checkUniqueAndExisting(
+    createAnimalDTOs: CreateAnimalDTO[],
+  ): Promise<void> {
+    const insuranceIdsArr: string[] = [];
+    await Promise.all(
+      createAnimalDTOs.map(async (animalDTO: CreateAnimalDTO) => {
+        if (await this.animalsRepository.isExisting(animalDTO.insuranceId)) {
+          throw new ConflictException(
+            `Aninmal with insurance ID: ${animalDTO.insuranceId} already exists`,
+          );
+        }
+        insuranceIdsArr.push(animalDTO.insuranceId);
+      }),
+    );
+
+    if (new Set(insuranceIdsArr).size !== insuranceIdsArr.length)
+      throw new ConflictException("Animals' insurance IDs must be unique");
   }
 }

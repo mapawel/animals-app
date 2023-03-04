@@ -1,1 +1,0 @@
-{"insuranceId":"qwert","name":"testqq","type":"cat","description":"","id":"9919fa24-3ca4-480b-855a-7d639e0780a9"}

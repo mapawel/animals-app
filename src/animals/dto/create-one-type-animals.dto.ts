@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 
-export class CreateManyAnimalsDTO {
+export class CreateOneTypeAnimalsDTO {
   @IsNotEmpty()
   @IsString()
-  @Length(5)
+  @Length(5, 5)
   public readonly insuranceId: string;
 
   @IsNotEmpty()

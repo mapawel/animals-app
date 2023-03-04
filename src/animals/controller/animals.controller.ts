@@ -10,7 +10,7 @@ import {
 import { AnimalsService } from '../service/animals.service';
 import { CreateAnimalDTO } from '../dto/create-animal.dto';
 import { UpdateAnimalDTO } from '../dto/update-animal.dto';
-import { CreateManyAnimalsDTO } from '../dto/create-many-animals.dto';
+import { CreateOneTypeAnimalsDTO } from '../dto/create-one-type-animals.dto';
 import { AnimalType } from '../entity/Animal-type.enum';
 import { ParseUUIDPipe, ParseEnumPipe } from '@nestjs/common';
 
@@ -44,6 +44,7 @@ export class AnimalsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAnimalDTO: UpdateAnimalDTO,
   ) {
+    console.log(' updateAnimalDTO----> ', updateAnimalDTO);
     return await this.animalsService.updateOne(id, updateAnimalDTO);
   }
 
@@ -60,7 +61,7 @@ export class AnimalsController {
   @Post('add/:type')
   async createManyOfType(
     @Param('type', new ParseEnumPipe(AnimalType)) type: AnimalType,
-    @Body() createAnimalDTOs: CreateManyAnimalsDTO[],
+    @Body() createAnimalDTOs: CreateOneTypeAnimalsDTO[],
   ) {
     return await this.animalsService.creatingManyOfType(type, createAnimalDTOs);
   }
