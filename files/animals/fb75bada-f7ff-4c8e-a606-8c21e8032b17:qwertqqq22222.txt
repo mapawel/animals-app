@@ -1,1 +1,0 @@
-{"insuranceId":"qwertqqq22222","name":"pazur23","type":"cat","description":"a gray cat","id":"fb75bada-f7ff-4c8e-a606-8c21e8032b17"}

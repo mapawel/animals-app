@@ -44,7 +44,6 @@ export class AnimalsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateAnimalDTO: UpdateAnimalDTO,
   ) {
-    console.log(' updateAnimalDTO----> ', updateAnimalDTO);
     return await this.animalsService.updateOne(id, updateAnimalDTO);
   }
 

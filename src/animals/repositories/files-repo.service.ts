@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import path from 'path';
 import { readFile, readdir, writeFile, unlink } from 'fs/promises';
+import { createWriteStream, WriteStream } from 'fs';
 import { Animal } from '../entity/Animal';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
 import { IAnimalsRepoService } from './animals-repo-service.interface';
@@ -40,11 +41,32 @@ export class FilesRepo implements IAnimalsRepoService {
       throw new ConflictException(
         `Aninmal with insurance ID: ${insuranceId} already exists`,
       );
-    await writeFile(
+
+    await this.writeToFile(
       this.filenameWhPath(id, insuranceId),
       JSON.stringify(animal),
     );
+    // await writeFile(
+    //   this.filenameWhPath(id, insuranceId),
+    //   JSON.stringify(animal),
+    // );
+
     return animal;
+  }
+
+  private async writeToFile(name: string, data: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const stream: WriteStream = createWriteStream(name);
+      stream.write(data);
+      stream.end();
+      stream.on('finish', () => {
+        stream.close();
+        resolve();
+      });
+      stream.on('error', (err) => {
+        reject(err);
+      });
+    });
   }
 
   public async updateOne(

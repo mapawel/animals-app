@@ -15,6 +15,6 @@ export class CreateAnimalDTO {
   public readonly type: AnimalType;
 
   @IsString()
-  @Length(0, 100)
+  // @Length(0, 100)
   public readonly description: string;
 }
