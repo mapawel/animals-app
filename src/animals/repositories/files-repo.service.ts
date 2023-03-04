@@ -9,92 +9,102 @@ import { createWriteStream, WriteStream } from 'fs';
 import { Animal } from '../entity/Animal';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
 import { IAnimalsRepoService } from './animals-repo-service.interface';
+import { FilesRepoException } from './exceptions/Files-repp.exception';
 
 @Injectable()
 export class FilesRepo implements IAnimalsRepoService {
+  constructor(private readonly DBpathStrings: string[]) {}
+
   public async findAll(): Promise<Animal[]> {
-    const animals: Animal[] = [];
-    for (const file of await this.readDBFolder()) {
-      animals.push(
-        JSON.parse(
-          await readFile(path.join(this.pathToDBFiles(), file), 'utf-8'),
-        ),
-      );
+    try {
+      const animals: Animal[] = [];
+      for (const file of await this.readDBFolder()) {
+        animals.push(
+          JSON.parse(
+            await readFile(path.join(this.pathToDBFiles(), file), 'utf-8'),
+          ),
+        );
+      }
+      return animals;
+    } catch (err: any) {
+      throw new FilesRepoException('Error while reading the DB files');
     }
-    return animals;
   }
 
   public async findOne(id: string): Promise<Animal> {
-    for (const file of await this.readDBFolder()) {
-      const fileId: string = file.split(':')[0];
-      if (fileId === id)
-        return JSON.parse(
-          await readFile(path.join(this.pathToDBFiles(), file), 'utf-8'),
-        );
+    try {
+      for (const file of await this.readDBFolder()) {
+        const fileId: string = file.split(':')[0];
+        if (fileId === id)
+          return JSON.parse(
+            await readFile(path.join(this.pathToDBFiles(), file), 'utf-8'),
+          );
+      }
+      throw new NotFoundException(`Animal with id: ${id} not found`);
+    } catch (err: any) {
+      if (err instanceof NotFoundException) throw err;
+      throw new FilesRepoException('Error while reading the DB file');
     }
-    throw new NotFoundException(`Animal with id: ${id} not found`);
   }
 
   public async createOne(animal: Animal): Promise<Animal> {
-    const { insuranceId, id }: { insuranceId: string; id: string } = animal;
-    if (await this.isExisting(insuranceId))
-      throw new ConflictException(
-        `Aninmal with insurance ID: ${insuranceId} already exists`,
+    try {
+      const { insuranceId, id }: { insuranceId: string; id: string } = animal;
+      if (await this.isExisting(insuranceId))
+        throw new ConflictException(
+          `Aninmal with insurance ID: ${insuranceId} already exists`,
+        );
+
+      await this.writeToFile(
+        this.filenameWhPath(id, insuranceId),
+        JSON.stringify(animal),
       );
+      // await writeFile(
+      //   this.filenameWhPath(id, insuranceId),
+      //   JSON.stringify(animal),
+      // );
 
-    await this.writeToFile(
-      this.filenameWhPath(id, insuranceId),
-      JSON.stringify(animal),
-    );
-    // await writeFile(
-    //   this.filenameWhPath(id, insuranceId),
-    //   JSON.stringify(animal),
-    // );
-
-    return animal;
-  }
-
-  private async writeToFile(name: string, data: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const stream: WriteStream = createWriteStream(name);
-      stream.write(data);
-      stream.end();
-      stream.on('finish', () => {
-        stream.close();
-        resolve();
-      });
-      stream.on('error', (err) => {
-        reject(err);
-      });
-    });
+      return animal;
+    } catch (err: any) {
+      if (err instanceof ConflictException) throw err;
+      throw new FilesRepoException('Error while writing the DB file');
+    }
   }
 
   public async updateOne(
     id: string,
     updateAnimalDTO: UpdateAnimalDTO,
   ): Promise<Animal> {
-    const animalToUpdate: Animal = await this.findOne(id);
-    const { insuranceId }: { insuranceId: string } = animalToUpdate;
+    try {
+      const animalToUpdate: Animal = await this.findOne(id);
+      const { insuranceId }: { insuranceId: string } = animalToUpdate;
 
-    const updatedAnimal: Animal = {
-      ...animalToUpdate,
-      ...updateAnimalDTO,
-      insuranceId,
-      id,
-    };
+      const updatedAnimal: Animal = {
+        ...animalToUpdate,
+        ...updateAnimalDTO,
+        insuranceId,
+        id,
+      };
 
-    await writeFile(
-      this.filenameWhPath(id, insuranceId),
-      JSON.stringify(updatedAnimal),
-    );
-    return updatedAnimal;
+      await writeFile(
+        this.filenameWhPath(id, insuranceId),
+        JSON.stringify(updatedAnimal),
+      );
+      return updatedAnimal;
+    } catch (err: any) {
+      throw new FilesRepoException('Error while updaing the DB file');
+    }
   }
 
   public async removeOne(id: string): Promise<boolean> {
-    const animalToRemove: Animal = await this.findOne(id);
-    const { insuranceId }: { insuranceId: string } = animalToRemove;
-    await unlink(this.filenameWhPath(id, insuranceId));
-    return true;
+    try {
+      const animalToRemove: Animal = await this.findOne(id);
+      const { insuranceId }: { insuranceId: string } = animalToRemove;
+      await unlink(this.filenameWhPath(id, insuranceId));
+      return true;
+    } catch (err: any) {
+      throw new FilesRepoException('Error while removing the DB file');
+    }
   }
 
   public async isExisting(insuranceId: string): Promise<boolean> {
@@ -110,10 +120,29 @@ export class FilesRepo implements IAnimalsRepoService {
   }
 
   private pathToDBFiles(): string {
-    return path.join(process.cwd(), 'files', 'animals');
+    return path.join(process.cwd(), ...this.DBpathStrings);
   }
 
   private async readDBFolder(): Promise<string[]> {
-    return await readdir(this.pathToDBFiles());
+    try {
+      return await readdir(this.pathToDBFiles());
+    } catch (err: any) {
+      throw new FilesRepoException('Error while reading folder with DB files.');
+    }
+  }
+
+  private async writeToFile(name: string, data: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const stream: WriteStream = createWriteStream(name);
+      stream.write(data);
+      stream.end();
+      stream.on('finish', () => {
+        stream.close();
+        resolve();
+      });
+      stream.on('error', (err) => {
+        reject(err);
+      });
+    });
   }
 }

@@ -11,7 +11,7 @@ import { FilesRepo } from './repositories/files-repo.service';
     AnimalsRepository,
     {
       provide: 'IAnimalsRepoService',
-      useClass: FilesRepo,
+      useValue: new FilesRepo(['files', 'animals']),
     },
   ],
 })

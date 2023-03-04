@@ -104,6 +104,6 @@ export class AnimalsService {
     );
 
     if (new Set(insuranceIdsArr).size !== insuranceIdsArr.length)
-      throw new ConflictException("Animals' insurance IDs must be unique");
+      throw new ConflictException("Animal's insurance IDs must be unique");
   }
 }
