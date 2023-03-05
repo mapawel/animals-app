@@ -3,6 +3,7 @@ import { AnimalType } from '../src/animals/entity/Animal-type.enum';
 import { Animal } from '../src/animals/entity/Animal';
 import { unlink, readdir } from 'fs/promises';
 import path from 'path';
+import { AnimalResDTO } from 'src/animals/dto/animal-res.dto';
 
 export class Setup {
   readonly animal1: Animal = {
@@ -13,6 +14,14 @@ export class Setup {
     description: 'A dog',
   };
 
+  readonly animal1ResDTO: AnimalResDTO = {
+    id: this.animal1.id,
+    insuranceId: this.animal1.insuranceId,
+    name: this.animal1.name,
+    type: this.animal1.type,
+    description: this.animal1.description,
+  };
+
   readonly animal2: Animal = {
     id: v4(),
     insuranceId: '54321',
@@ -21,14 +30,26 @@ export class Setup {
     description: 'A cat',
   };
 
+  readonly animal2ResDTO: AnimalResDTO = {
+    id: this.animal2.id,
+    insuranceId: this.animal2.insuranceId,
+    name: this.animal2.name,
+    type: this.animal2.type,
+    description: this.animal2.description,
+  };
+
   private readonly testDbPathStringsArr: string[];
 
   constructor(settings: { testDbPathStringsArr: string[] }) {
     this.testDbPathStringsArr = settings.testDbPathStringsArr;
   }
 
-  public sortAnimalsById(animals: Animal[]): Animal[] {
-    return animals.sort((x: Animal, y: Animal) => x.id.localeCompare(y.id));
+  public sortAnimalsById(
+    animals: Animal[] | AnimalResDTO[],
+  ): Animal[] | AnimalResDTO[] {
+    return animals.sort((x: Animal | AnimalResDTO, y: Animal | AnimalResDTO) =>
+      x.id.localeCompare(y.id),
+    );
   }
 
   public async removeTestDBFiles(): Promise<void> {

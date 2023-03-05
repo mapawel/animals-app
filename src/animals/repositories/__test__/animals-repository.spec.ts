@@ -3,7 +3,7 @@ import { AnimalsRepository } from '../animals.repository';
 import { FilesRepo } from '../files-repo.service';
 import { IAnimalsRepoService } from '../animals-repo-service.interface';
 import { Setup } from '../../../../__tests__/global-test.setup';
-import { Animal } from '../../../../src/animals/entity/Animal';
+import { Animal } from '../../entity/Animal';
 
 describe('AnimalsRepository test suite:', () => {
   let setup: Setup;
@@ -33,7 +33,7 @@ describe('AnimalsRepository test suite:', () => {
     );
   });
 
-  it('AnimalService should be defined', () => {
+  it('AnimalsRepository should be defined', () => {
     expect(animalsRepository).toBeDefined();
   });
 
