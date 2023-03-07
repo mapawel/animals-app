@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import path from 'path';
 import { readFile, readdir, writeFile, unlink } from 'fs/promises';
-import { createWriteStream, WriteStream } from 'fs';
 import { Animal } from '../entity/Animal';
 import { UpdateAnimalDTO } from 'src/animals/dto/update-animal.dto';
 import { IAnimalsRepoService } from './animals-repo-service.interface';
@@ -19,11 +18,8 @@ export class FilesRepo implements IAnimalsRepoService {
     try {
       const animals: Animal[] = [];
       for (const file of await this.readDBFolder()) {
-        animals.push(
-          JSON.parse(
-            await readFile(path.join(this.pathToDBFiles(), file), 'utf-8'),
-          ),
-        );
+        const buffer = await readFile(path.join(this.pathToDBFiles(), file));
+        animals.push(JSON.parse(buffer.toString()));
       }
       return animals;
     } catch (err: any) {
@@ -35,15 +31,17 @@ export class FilesRepo implements IAnimalsRepoService {
     try {
       for (const file of await this.readDBFolder()) {
         const fileId: string = file.split(':')[0];
-        if (fileId === id)
-          return JSON.parse(
-            await readFile(path.join(this.pathToDBFiles(), file), 'utf-8'),
-          );
+        if (fileId === id) {
+          const buffer = await readFile(path.join(this.pathToDBFiles(), file));
+          return JSON.parse(buffer.toString());
+        }
       }
       throw new NotFoundException(`Animal with id: ${id} not found`);
     } catch (err: any) {
       if (err instanceof NotFoundException) throw err;
-      throw new FilesRepoException('Error while reading the DB file');
+      throw new FilesRepoException(
+        'Error while reading the DB file' + err.message,
+      );
     }
   }
 
@@ -59,10 +57,6 @@ export class FilesRepo implements IAnimalsRepoService {
         this.filenameWhPath(id, insuranceId),
         JSON.stringify(animal),
       );
-      // await writeFile(
-      //   this.filenameWhPath(id, insuranceId),
-      //   JSON.stringify(animal),
-      // );
 
       return animal;
     } catch (err: any) {
@@ -86,7 +80,7 @@ export class FilesRepo implements IAnimalsRepoService {
         id,
       };
 
-      await writeFile(
+      await this.writeToFile(
         this.filenameWhPath(id, insuranceId),
         JSON.stringify(updatedAnimal),
       );
@@ -132,17 +126,7 @@ export class FilesRepo implements IAnimalsRepoService {
   }
 
   private async writeToFile(name: string, data: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const stream: WriteStream = createWriteStream(name);
-      stream.write(data);
-      stream.end();
-      stream.on('finish', () => {
-        stream.close();
-        resolve();
-      });
-      stream.on('error', (err) => {
-        reject(err);
-      });
-    });
+    const dataBuffer: Buffer = Buffer.from(data);
+    await writeFile(name, dataBuffer);
   }
 }
