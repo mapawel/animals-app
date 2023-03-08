@@ -28,8 +28,6 @@ export class AnimalsController {
     @Param('id', ParseUUIDPipe)
     id: string,
   ) {
-    console.log('findOne ----> ', Date.now() / 1000);
-
     return await this.animalsService.findOne(id);
   }
 

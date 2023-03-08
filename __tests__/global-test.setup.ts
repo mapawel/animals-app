@@ -4,6 +4,7 @@ import { Animal } from '../src/animals/entity/Animal';
 import { unlink, readdir } from 'fs/promises';
 import path from 'path';
 import { AnimalResDTO } from 'src/animals/dto/animal-res.dto';
+import { CreateAnimalDTO } from 'src/animals/dto/create-animal.dto';
 
 export class Setup {
   readonly animal1: Animal = {
@@ -22,6 +23,13 @@ export class Setup {
     description: this.animal1.description,
   };
 
+  readonly animal1createDTO: CreateAnimalDTO = {
+    insuranceId: this.animal1.insuranceId,
+    name: this.animal1.name,
+    type: this.animal1.type,
+    description: this.animal1.description,
+  };
+
   readonly animal2: Animal = {
     id: v4(),
     insuranceId: '54321',
@@ -32,6 +40,13 @@ export class Setup {
 
   readonly animal2ResDTO: AnimalResDTO = {
     id: this.animal2.id,
+    insuranceId: this.animal2.insuranceId,
+    name: this.animal2.name,
+    type: this.animal2.type,
+    description: this.animal2.description,
+  };
+
+  readonly animal2createDTO: CreateAnimalDTO = {
     insuranceId: this.animal2.insuranceId,
     name: this.animal2.name,
     type: this.animal2.type,

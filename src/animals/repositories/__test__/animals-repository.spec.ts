@@ -138,7 +138,7 @@ describe('AnimalsRepository test suite:', () => {
   });
 
   describe('isExisting() tests:', () => {
-    it('should evoke isExisting() from repositoryService and return updated Animal', async () => {
+    it('should evoke isExisting() from repositoryService and return true', async () => {
       //given
       const isExistingFileRepoSpy = jest
         .spyOn(filesRepo, 'isExisting')
